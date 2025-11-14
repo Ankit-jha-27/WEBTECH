@@ -1,0 +1,63 @@
+
+// Functions.js 
+
+const getBonusedEmployee = (employees, bonus)=>{
+    var bonusEmployee = [];
+
+    employees.forEach((employee)=>{
+        if(bonus[employee.id]){
+            bonusEmployee.push({
+                id:employee.id,
+                fullname:employee.name.first + " " + employee.name.last,
+                salary:employee.salary + employee.yearsWorking * 1000
+            })
+        }
+    })
+
+    return bonusEmployee;
+}
+
+module.exports = getBonusedEmployee;
+
+
+
+
+// callback.js
+
+
+const fs = require('fs')
+const getBonusedEmployee = require('./functions')
+
+
+fs.readFile('employees.json',(err, data) =>{
+    if(err) throw err;
+    var file1 = JSON.parse(data)
+
+    fs.readFile('bonuses.json',(err,data)=>{
+        if(err) throw err;
+        var file2 = JSON.parse(data)
+
+        bonusedEmployee = getBonusedEmployee(file1,file2)
+
+        var data = JSON.stringify(bonusedEmployee)
+
+        fs.writeFile('bonusedEmployees.json', data, (err) => {
+            if(err) throw err
+            console.log('Data written to file');
+
+            var logData = [];
+
+            bonusedEmployee.forEach((employee) => {
+                logData.push({fullname: employee.fullname, newsalary: employee.salary})
+            })
+
+            fs.writeFile('log.txt', JSON.stringify(logData), (err) => {
+                if(err) throw err
+                console.log('Log data written to file');  
+            })
+            
+        })
+
+
+    })
+})
