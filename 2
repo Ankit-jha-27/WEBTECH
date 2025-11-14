@@ -1,0 +1,70 @@
+// hello1.js
+
+var fs = require("fs");
+var readline = require("readline");
+
+var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+var data = fs.readFileSync("greetings.txt");
+var greetings = data.toString().split("\n").map(space => space.trim());
+
+
+rl.question("What is your name? ", function(name) {
+  for(var i = 0; i < 5; i++) {
+    var greeting = greetings[Math.floor(Math.random() * greetings.length)];
+    console.log(greeting + " ," + name); 
+  }
+  rl.close();
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// hello2.js
+
+const fs = require('fs')
+const http = require('http')
+const url = require("url");
+
+fs.readFile('greetings.txt','utf-8',(err, data) => {
+    if(err)
+        throw err;
+    greetings = data.toString().split('\n');
+   
+
+
+
+const server = http.createServer((req, res) => {
+    res.writeHead(200)
+    var query = url.parse(req.url, true).query
+    var name = query.name
+    var greeting = greetings[Math.floor(Math.random()*greetings.length)]
+
+    if(name){
+        res.end(greeting +"," + name)
+    }else{
+        res.end(greeting);
+    }
+})
+
+    server.listen(8080, () => {
+        console.log('Server is listening on port 8080')
+    })
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
