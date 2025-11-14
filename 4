@@ -1,0 +1,103 @@
+// functions.js
+
+var getBonusedEmployees = (employees, bonus) =>{
+    var bonusemployee = [];
+
+    employees.forEach((employee) =>{
+        if(bonus[employee.id]){
+            bonusemployee.push({
+                id: employee.id,
+                fullname: employee.name.first + " " + employee.name.last,
+                salary: employee.salary + employee.yearsWorking * 1000 
+            })
+        }
+    })
+    return bonusemployee;
+}
+
+module.exports = getBonusedEmployees;
+
+
+
+// promise.js
+
+
+var getBonusedEmployees = require('./functions')
+
+const {promises: {readFile}} = require("fs");
+
+Promise.all([
+    readFile("employees.json"),
+    readFile("bonuses.json")
+])
+.then(([employees, bonuses]) => {
+    var file1 = JSON.parse(employees);
+    var file2 = JSON.parse(bonuses);
+
+    var bonusedemployees = getBonusedEmployees(file1, file2)
+
+    console.log(bonusedemployees);
+})
+.catch(error =>{
+    console.error(error.message);
+})
+
+
+
+// promise2.js
+
+
+var getBonusedEmployees = require("./functions");
+const fs = require('fs');
+
+function readFilePromise(filePath, encoding = 'utf8') {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filePath, encoding, (err, data) => {
+            if (err) return reject(err);
+            resolve(data);
+        });
+    });
+}
+
+function writeFilePromise(filePath, data, encoding = 'utf8') {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(filePath, data, encoding, (err) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
+const inputFilePath1 = 'employees.json';
+const inputFilePath2 = 'bonuses.json';
+const outputFilePath1 = 'bonusedEmployees.json';
+const outputFilePath2 = 'log.txt';
+
+let file1, file2, logdata;
+
+readFilePromise(inputFilePath1)
+    .then((data) => {
+        file1 = JSON.parse(data);
+        console.log('Successfully read employees.json');
+        return readFilePromise(inputFilePath2);
+    })
+    .then((data) => {
+        file2 = JSON.parse(data);
+        console.log('Successfully read bonuses.json');
+
+        const bonusedemployees = getBonusedEmployees(file1, file2);
+        logdata = JSON.stringify(bonusedemployees);
+
+        return writeFilePromise(outputFilePath1, logdata);
+    })
+    .then(() => {
+        return writeFilePromise(outputFilePath2, logdata);
+    })
+    .then(() => {
+        console.log('Content of log.txt:\n', logdata);
+    })
+    .catch((error) => {
+        console.error('An error occurred:', error);
+    });
+
+
